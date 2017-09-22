@@ -253,7 +253,9 @@ class MerchantController extends BaseController
                     $merchantArr = $value;
                 }
 
-                if ($merchant['merchant_name'] == $merchantArr['merchant_name'] && $merchant['merchant_phone'] == $merchantArr['merchant_phone'] && md5(md5($merchant['merchant_password'])) == $merchantArr['merchant_password'] && $merchant['merchant_account'] == $merchantArr['merchant_account']) {
+                if ($merchant['merchant_name'] == $merchantArr['merchant_name'] && $merchant['merchant_phone'] == $merchantArr['merchant_phone'] &&
+                    md5(md5($merchant['merchant_password'])) == $merchantArr['merchant_password'] && $merchant['merchant_account'] == $merchantArr['merchant_account']) {
+                    $this->forgetSession();
                     return redirect('jump')->with(['message' => '请注意：未修改任何信息', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
                 }else{
 

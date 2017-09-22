@@ -295,16 +295,18 @@ class CompanyController extends BaseController
                     return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Merchant/merchantEditIndex/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
                 }
 
-                /*$companymes = CompanyInfo::find($company_id);
+                $companymes = CompanyInfo::find($company_id);
                 if ($company['company_name'] == $companymes['company_name'] && $company['company_abbreviation'] == $companymes['company_abbreviation'] &&
                     $company['company_phone'] == $companymes['company_phone'] && $company['company_longitude'] == $companymes['company_longitude'] &&
                     $company['company_latitude'] == $companymes['company_latitude'] && $company['company_account'] == $companymes['company_account'] &&
-                    md5(md5($company['company_password'])) == $companymes['company_password'] && $company['company_price'] == $companymes['company_price'] &&
+                    $company['company_password'] == '' && $company['company_price'] == $companymes['company_price'] &&
                     $company['company_description'] == $companymes['company_description'] && $company['company_bar_code'] == $companymes['company_bar_code'] &&
-                    $company['merchant_id'] == $companymes['merchant_id']) {
+                    $company['merchant_id'] == $companymes['merchant_id'] && $company_photo == '') {
 
-                    return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => 'Admin/Merchant/merchantEditIndex/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
-                } else {*/
+                    $this->forgetSession();
+                    request()->session()->forget('company_price');
+                    return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
+                } else {
                     // 处理贵宾室
                     if ('*' == $company['merchant_id']) {
                         unset($company['merchant_id']);
@@ -352,7 +354,7 @@ class CompanyController extends BaseController
                             return redirect('jump')->with(['message' => '修改成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                         }
                     }
-                //}
+                }
             }
         }
     }

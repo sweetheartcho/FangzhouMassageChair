@@ -243,18 +243,24 @@ class WaiterController extends BaseController
             if ('' == $waiter['waiter_name'] || '' == $waiter['waiter_telephone']) {
                 return redirect('jump')->with(['message' => '服务员姓名，手机号不能为空!', 'url' => '/Admin/Waiter/waiterEditIndex/id/' . $waiter_id, 'jumpTime' => 3, 'status' => false]);
             } else {
-                // 验证手机号
-                $pattern = "/^1[34578]\d{9}$/";
-                if (!preg_match($pattern, $waiter['waiter_telephone'])) {
-                    return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Waiter/waiterEditIndex/id/'.$waiter_id, 'jumpTime' => 3, 'status' => false]);
-                }
-
-                $waiterinfo = CompanyWaiter::where('waiter_id', $waiter_id)->update($waiter);
-                if (0 == $waiterinfo) {
-                    return redirect('jump')->with(['message' => '修改失败!', 'url' => 'Admin/Waiter/waiterEditIndex/id/'.$waiter_id, 'jumpTime' => 3, 'status' => false]);
-                } else {
+                $waiter_info = CompanyWaiter::find($waiter_id);  //dd($waiter_info);
+                if ($waiter['waiter_name'] == $waiter_info['waiter_name'] && $waiter['waiter_telephone'] == $waiter_info['waiter_telephone']) {
                     $this->forgetSession();
-                    return redirect('jump')->with(['message' => '修改成功!', 'url' => 'Admin/Waiter/index/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
+                    return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Waiter/index/id/' . $company_id, 'jumpTime' => 3, 'status' => false]);
+                } else {
+                    // 验证手机号
+                    $pattern = "/^1[34578]\d{9}$/";
+                    if (!preg_match($pattern, $waiter['waiter_telephone'])) {
+                        return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Waiter/waiterEditIndex/id/'.$waiter_id, 'jumpTime' => 3, 'status' => false]);
+                    }
+
+                    $waiterinfo = CompanyWaiter::where('waiter_id', $waiter_id)->update($waiter);
+                    if (0 == $waiterinfo) {
+                        return redirect('jump')->with(['message' => '修改失败!', 'url' => 'Admin/Waiter/waiterEditIndex/id/'.$waiter_id, 'jumpTime' => 3, 'status' => false]);
+                    } else {
+                        $this->forgetSession();
+                        return redirect('jump')->with(['message' => '修改成功!', 'url' => 'Admin/Waiter/index/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
+                    }
                 }
             }
         }

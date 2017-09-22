@@ -49,6 +49,8 @@ class ConfigController extends BaseController
                 } else {
                     return redirect('jump')->with(['message' => implode(',', $fialimage) . '图片修改失败！', 'url' => 'Admin/Config/index', 'jumpTime' => 3, 'status' => false]);
                 }
+            } else {
+                return redirect('jump')->with(['message' => '请注意：未添加图片！', 'url' => 'Admin/Config/index', 'jumpTime' => 3, 'status' => false]);
             }
         }
     }

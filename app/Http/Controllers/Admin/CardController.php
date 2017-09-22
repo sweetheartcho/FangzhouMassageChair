@@ -228,6 +228,7 @@ class CardController extends BaseController
                 }
 
                 if ($cardArr['card_name'] == $card['card_name'] && $cardArr['card_price'] == $card['card_price'] && $cardArr['card_description'] == $card['card_description'] && '' == $card['card_logo']) {
+                    $this->forgetSession();
                     return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Card/index', 'jumpTime' => 3, 'status' => false]);
                 }else{
 
