@@ -1,0 +1,148 @@
+/*-- logo上传按钮样式修改 start --*/
+.file {
+    position: relative;
+    display: inline-block;
+    background: #009688;
+    border: 1px solid #009688;
+    border-radius: 3px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #ffffff;
+    text-decoration: none;
+    text-indent: 0;
+    height: 38px;
+    line-height: 28px;
+}
+
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.file:hover {
+    background: #009688;
+    border-color: #009688;
+    color: #ffffff;
+    text-decoration: none;
+}
+/*-- logo上传按钮样式修改 end --*/
+/*-- 表单文本框宽度修改 start --*/
+.layui-form-item .layui-input-inline-modify {
+    float: left;
+    width: 500px;
+    margin-right: 10px;
+}
+/*-- 表单文本框宽度修改 end --*/
+/*-- 主页面板样式 start --*/
+.tile {
+    margin-bottom: 15px;
+    border-radius: 3px;
+    background-color: #535353;
+    color: #FFFFFF;
+    transition: all 1s;
+    height: 200px;
+}
+.tile:hover {
+    opacity: 0.95;
+}
+
+.tile a {
+    color: #FFFFFF;
+}
+.tile-heading {
+    padding: 5px 8px;
+    text-transform: uppercase;
+    background-color: #4C4C4C;
+    color: #FFF;
+    height: 30px;
+}
+.tile .tile-heading .pull-right {
+    transition: all 1s;
+    opacity: 0.7;
+}
+.tile:hover .tile-heading .pull-right {
+    opacity: 1;
+}
+.tile-body {
+    padding: 15px;
+    color: #FFFFFF;
+    height: 140px;
+}
+.tile .tile-body i {
+    font-size: 65px;
+    opacity: 0.3;
+    transition: all 1s;
+    line-height: 100px;
+    margin-left: 10px;
+}
+.tile:hover .tile-body i {
+    color: #FFFFFF;
+    opacity: 1;
+}
+.tile .tile-body h2 {
+    margin-top: 30px;
+    padding-right: 20px;
+    font-size: 40px;
+}
+
+.tile-footer {
+    padding: 5px 8px;
+    background-color: #5A5A5A;
+    height: 30px;
+}
+/*-- 主页面板样式 end --*/
+/*-- 图片页面 start --*/
+.img-menu {
+    margin-top: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #afafaf;
+}
+
+.img-thumbnail-size {
+    height: 260px;
+    width: 260px;
+}
+
+.img-list {
+    margin-top: 10px;
+    /*margin-left: -15px;*/
+}
+
+#uploadimg {
+    display: inline;
+}
+
+#delete-button {
+    margin-left: 1px;
+}
+/*-- 图片页面 end --*/
+/*-- 图片显示区 start --*/
+.img-body, .image-show-area {
+    padding-left: 0;
+    border: none;
+}
+
+.img-body a, .image-show-area a {
+    cursor: pointer;
+}
+
+#addImage {
+    font-size: 60px;
+    color: #009688;
+    padding-top: 20px;
+}
+
+.img-thumbnail img {
+    height: 115px;
+    width: 115px;
+}
+/*-- 图片显示区 end --*/
+/*-- 搜索框样式 start --*/
+.search-form {
+    margin-top: 15px;
+    width: 1000px;
+}
+/*-- 搜索框样式 end --*/
