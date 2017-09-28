@@ -41,8 +41,9 @@
                 <select name="Company[merchant_id]">
                     <option value="*">默认</option>
                     @foreach($merchantname as $merchant)
-                        @if($companyinfo->merchant_id == $merchant['merchant_id'])
-                            <option value="{{ $merchant['merchant_id'] }}" selected="selected">{{ $merchant['merchant_name'] }}</option>
+                        @if($companyinfo->merchant_id == $merchant['merchant_id']||(Session::has('merchant_id') && Session::get('merchant_id') == $merchant['merchant_id']))
+                            <option value="{{ $merchant['merchant_id'] }}" selected>{{ $merchant['merchant_name'] }}</option>
+                            {{ Session::forget('merchant_id') }}
                         @else
                             <option value="{{ $merchant['merchant_id'] }}">{{ $merchant['merchant_name'] }}</option>
                         @endif
@@ -59,13 +60,13 @@
         <div class="layui-form-item">
             <label class="layui-form-label">经度</label>
             <div class="layui-input-inline-modify">
-                <input type="text" name="Company[company_longitude]" value="{{ Session::has('company_longitude')?Session::pull('company_longitude'):$companyinfo->company_longitude }}" disabled="disabled" class="layui-input">
+                <input type="text" name="Company[company_longitude]" value="{{ Session::has('company_longitude')?Session::pull('company_longitude'):$companyinfo->company_longitude }}" disabled class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">纬度</label>
             <div class="layui-input-inline-modify">
-                <input type="text" name="Company[company_latitude]" value="{{ Session::has('company_latitude')?Session::pull('company_latitude'):$companyinfo->company_latitude }}" disabled="disabled" class="layui-input">
+                <input type="text" name="Company[company_latitude]" value="{{ Session::has('company_latitude')?Session::pull('company_latitude'):$companyinfo->company_latitude }}" disabled class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
@@ -118,7 +119,7 @@
                     @foreach($companyphoto as $photo)
                         <div class="col-sm-3 img-thumbnail image-show-area">
                             <img src="{{ asset($photo->image) }}" alt="{{ $photo->image }}"/>
-                            <a class="glyphicon glyphicon-remove" onclick="deleteImg('{{ $photo->image }}');">删除</a>
+                            <a class="glyphicon glyphicon-remove" onclick="deleteImg('{{ $photo->photo_id }}');">删除</a>
                         </div>
                     @endforeach
                 </div>
@@ -224,11 +225,11 @@
     });
 </script>
 <script>
-    function deleteImg(src) {
+    function deleteImg(photoId) {
         $.ajax({
             type: 'POST',
             url: "{{ url('Admin/Company/deleteImg') }}",
-            data: {src: src},
+            data: {id: photoId},
             dataType: 'JSON',
             headers: {'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')},
             success: function (msg) {

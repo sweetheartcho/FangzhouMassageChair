@@ -35,7 +35,12 @@
                 <select name="Company[merchant_id]">
                     <option value="*">默认</option>
                     @foreach($merchantname as $merchant)
-                        <option value="{{ $merchant->merchant_id }}">{{ $merchant->merchant_name }}</option>
+                        @if(Session::has('merchant_id') && Session::get('merchant_id')==$merchant->merchant_id)
+                            <option value="{{ $merchant->merchant_id }}" selected>{{ $merchant->merchant_name }}</option>
+                            {{ Session::forget('merchant_id') }}
+                        @else
+                            <option value="{{ $merchant->merchant_id }}">{{ $merchant->merchant_name }}</option>
+                        @endif
                     @endforeach
                 </select>
             </div>

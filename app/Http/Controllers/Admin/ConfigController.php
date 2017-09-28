@@ -14,7 +14,7 @@ class ConfigController extends BaseController
     // 设定页面
     public function index(){
 
-        $configimg = Config::all();
+        $configimg = Config::where('type', '1')->get();
 
         $breadcrumbs = [
             ['text' => '首页'],
@@ -35,9 +35,11 @@ class ConfigController extends BaseController
 
             if ($image != '') {
                 $images = explode(',', $image);
+
+                $fialimage = [];
                 foreach ($images as $img) {
                     $imagepath = 'uploads/' . basename($img);
-                    $results = Config::create(['card_photo' => $imagepath]);
+                    $results = Config::create(['card_photo' => $imagepath, 'type' => '1']);
 
                     if (empty($results)) {
                         $fialimage[] = basename($img);
@@ -58,8 +60,8 @@ class ConfigController extends BaseController
     // 删除图片
     public function deleteImg(){
         if (request()->isMethod('POST')) {
-            $src = request()->input('src');
-            $photo = Config::where('card_photo', $src)->delete();
+            $id = request()->input('id');
+            $photo = Config::where('config_Id', $id)->delete();
 
             if (0 == $photo) {
                 return response()->json('删除失败');

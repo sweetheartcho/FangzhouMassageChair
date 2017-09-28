@@ -6,7 +6,15 @@
             <li class="layui-nav-item">
                 <a href="javascript:;">{{ Session::get('account') }}</a>
                 <dl class="layui-nav-child"> <!-- 二级菜单 -->
-                    <dd><a href="{{ asset('Admin/Login/logout') }}">退出</a></dd>
+                    @if(Session::has('authority_id'))
+                        @if('1' == Session::get('authority_id'))
+                            <dd><a href="{{ asset('Admin/Login/AdminLogout') }}">退出</a></dd>
+                        @elseif('2' == Session::get('authority_id'))
+                            <dd><a href="{{ asset('Admin/Login/CompanyLogout') }}">退出</a></dd>
+                        @elseif('3' == Session::get('authority_id'))
+                            <dd><a href="{{ asset('Admin/Login/MerchantLogout') }}">退出</a></dd>
+                        @endif
+                    @endif
                 </dl>
             </li>
         </ul>

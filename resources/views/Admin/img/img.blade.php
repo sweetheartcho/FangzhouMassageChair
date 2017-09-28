@@ -35,16 +35,18 @@
     });
 
     // 选中图片
-    $('.select-img img').click(function () {
+    $('.select-img img').one('click',function () {
         var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
 
         var html = "<div class='col-sm-3 img-thumbnail img-body'>" +
                    "<img src='" + $(this).attr('src') + "'/>" +
                    "<a onclick=\"$(this).parent().remove();\" class='glyphicon glyphicon-remove' role='menuitem' tabindex='-1'>删除</a>" +
                    "</div>";
+
         parent.$('#addImage').before(html);
 
         parent.layer.close(index);
+
     });
 </script>
 <script>

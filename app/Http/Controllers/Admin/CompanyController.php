@@ -15,10 +15,9 @@ use App\Model\UserCardOperation;
 use App\Model\Companyphtots;
 use DB;
 
-class CompanyController extends BaseController
-{
+class CompanyController extends BaseController {
     // 商户列表页面
-    public function index(){
+    public function index() {
 
         if (isset($_GET['sort'])) {
             $sort = $_GET['sort'];
@@ -88,9 +87,9 @@ class CompanyController extends BaseController
         $path = Paginator::resolveCurrentPath();
         $path .= '?sort=' . $sort . '&search_name=' . $search_name . '&search_phone=' . $search_phone . '&search_abbreviation=' . $search_abbreviation;
 
-        $item = array_splice($company,($page - 1) * $pageSize, $pageSize);
+        $item = array_splice($company, ($page - 1) * $pageSize, $pageSize);
         $paginator = new LengthAwarePaginator($item, $companynum, $pageSize, $page, [
-            'path'     => $path, //Paginator::resolveCurrentPath(),//Paginator::setPath('Admin/Company/index'),
+            'path' => $path,
             'pageName' => 'page',
         ]);
 
@@ -98,11 +97,11 @@ class CompanyController extends BaseController
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '商户管理'],
         ];
 
-        return view('Admin.company.CompanyList',[
+        return view('Admin.company.CompanyList', [
             'breadcrumbs'         => $breadcrumbs,
             'companyinfo'         => $companyinfo,
             'companynum'          => $companynum,
@@ -133,6 +132,7 @@ class CompanyController extends BaseController
 
             if (!empty($company_ids)) {
 
+                $fail_company_name = [];
                 foreach ($company_ids as $company_id) {
                     $companyname = CompanyInfo::find($company_id)->value('company_name');
                     $companyinfo = CompanyInfo::where('company_id', $company_id)->update(['company_state' => '-1']);
@@ -144,7 +144,7 @@ class CompanyController extends BaseController
 
                 if (empty($fail_company_name)) {
                     return redirect('jump')->with(['message' => '批量删除成功！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
-                }else{
+                } else {
                     return redirect('jump')->with(['message' => implode(',', $fail_company_name) . '删除失败！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                 }
 
@@ -179,7 +179,13 @@ class CompanyController extends BaseController
             $sql .= " company_state=1";
         }
 
-        $sql .= " GROUP BY company_id ";
+        if (request()->session()->has('company')) {
+            $sql .= " AND company_id='" . request()->session()->get('company') . "'";
+        } else if (request()->session()->has('company_id')) {
+            $sql .= " AND company_id in (" . implode(',', request()->session()->get('company_id')) . ")";
+        }
+
+        $sql .= " GROUP BY company_id";
 
         $sort_data = [
             'company_name',
@@ -203,7 +209,7 @@ class CompanyController extends BaseController
     }
 
     // 数据数量
-    public function getCompanyNum($data = array()){
+    public function getCompanyNum($data = array()) {
         $sql = "SELECT COUNT(company_id) AS total FROM base_company_info WHERE";
 
         $whereList = [];
@@ -224,6 +230,12 @@ class CompanyController extends BaseController
             $sql .= " AND company_state=1";
         } else {
             $sql .= " company_state=1";
+        }
+
+        if (request()->session()->has('company')) {
+            $sql .= " AND company_id='" . request()->session()->get('company') . "'";
+        } else if (request()->session()->has('company_id')) {
+            $sql .= " AND company_id in (" . implode(',', request()->session()->get('company_id')) . ")";
         }
 
         $sort_data = [
@@ -248,20 +260,32 @@ class CompanyController extends BaseController
     }
 
     // 编辑商户页面
-    public function companyEditIndex($id){
-        $companyinfo = CompanyInfo::find($id);
-        $companyphoto = Companyphtots::where('company_id', $id)->get();
+    public function companyEditIndex($id) {
 
-        // 使用时间
-        $time = UserCardOperation::where('company_id', $id)->where('operate_type', '2')->groupBy('company_id')->sum('use_time');
-        $use_time = $this->handletime($time);
+        /*if (request()->session()->has('company')) {
+            $companyinfo = CompanyInfo::find(request()->session()->get('company'));
+            $companyphoto = Companyphtots::where('company_id', request()->session()->get('company'))->get();
+
+            // 使用时间
+            $time = UserCardOperation::where('company_id', request()->session()->get('company'))->where('operate_type', '2')->groupBy('company_id')->sum('use_time');
+            $use_time = $this->handletime($time);
+
+        } else {*/
+
+            $companyinfo = CompanyInfo::find($id);
+            $companyphoto = Companyphtots::where('company_id', $id)->get();
+
+            // 使用时间
+            $time = UserCardOperation::where('company_id', $id)->where('operate_type', '2')->groupBy('company_id')->sum('use_time');
+            $use_time = $this->handletime($time);
+        //}
 
         // 贵宾厅名称
-        $merchantname = Merchant::where('merchant_state', 1)->get(['merchant_name','merchant_id']);
+        $merchantname = Merchant::where('merchant_state', 1)->get(['merchant_name', 'merchant_id']);
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '商户管理'],
             ['text' => '修改商户信息']
         ];
@@ -276,7 +300,7 @@ class CompanyController extends BaseController
     }
 
     // 保存商户编辑信息
-    public function companyEdit(){
+    public function companyEdit() {
         if (request()->isMethod('POST')) {
             $company = $this->handle_label(request()->input('Company'));
             $company_id = request()->input('company_id');
@@ -286,73 +310,66 @@ class CompanyController extends BaseController
             request()->session()->put('company_price', $company['company_price']);
 
             if ('' == $company['company_name'] || '' == $company['company_abbreviation'] || '' == $company['company_phone'] || '' == $company['company_longitude'] ||
-                '' == $company['company_latitude']||'' == $company['company_account']) {
-                return redirect('jump')->with(['message' => '商户名称，商户简称，手机号，地址，账号不能为空!', 'url' => '/Admin/Company/companyEditIndex/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
+                '' == $company['company_latitude'] || '' == $company['company_account']) {
+                return redirect('jump')->with(['message' => '商户名称，商户简称，手机号，地址，账号不能为空!', 'url' => '/Admin/Company/companyEditIndex/id/' . $company_id, 'jumpTime' => 3, 'status' => false]);
             } else {
 
                 $pattern = "/^1[34578]\d{9}$/";
                 if (!preg_match($pattern, $company['company_phone'])) {
-                    return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Merchant/merchantEditIndex/id/'.$company_id, 'jumpTime' => 3, 'status' => false]);
+                    return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Merchant/merchantEditIndex/id/' . $company_id, 'jumpTime' => 3, 'status' => false]);
                 }
 
-                $companymes = CompanyInfo::find($company_id);
-                if ($company['company_name'] == $companymes['company_name'] && $company['company_abbreviation'] == $companymes['company_abbreviation'] &&
-                    $company['company_phone'] == $companymes['company_phone'] && $company['company_longitude'] == $companymes['company_longitude'] &&
-                    $company['company_latitude'] == $companymes['company_latitude'] && $company['company_account'] == $companymes['company_account'] &&
-                    $company['company_password'] == '' && $company['company_price'] == $companymes['company_price'] &&
-                    $company['company_description'] == $companymes['company_description'] && $company['company_bar_code'] == $companymes['company_bar_code'] &&
-                    $company['merchant_id'] == $companymes['merchant_id'] && $company_photo == '') {
+                // 处理贵宾室
+                if ('*' == $company['merchant_id']) {
+                    unset($company['merchant_id']);
+                }
 
-                    $this->forgetSession();
-                    request()->session()->forget('company_price');
-                    return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
+                // 处理密码
+                if ('' == $company['company_password']) {
+                    unset($company['company_password']);
                 } else {
-                    // 处理贵宾室
-                    if ('*' == $company['merchant_id']) {
-                        unset($company['merchant_id']);
-                    }
+                    $company['company_password'] = md5(md5($company['company_password']));
+                }
 
-                    // 处理密码
-                    if ('' == $company['company_password']) {
-                        unset($company['company_password']);
-                    }else{
-                        $company['company_password'] = md5(md5($company['company_password']));
-                    }
+                $companyinfo = CompanyInfo::where('company_id', $company_id)->update($company);
 
-                    $companyinfo = CompanyInfo::where('company_id', $company_id)->update($company);
-
-                    if ('' == $company_photo) {
-                        if ($companyinfo == 0) {
-                            return redirect('jump')->with(['message' => '修改失败!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
-                        } else {
-                            $this->forgetSession();
-                            request()->session()->forget('company_price');
-                            return redirect('jump')->with(['message' => '修改成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
-                        }
+                if ('' == $company_photo) {
+                    if ($companyinfo == 0) {
+                        $this->forgetSession();
+                        request()->session()->forget('company_price');
+                        return redirect('jump')->with(['message' => '修改失败!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                     } else {
-                        $photos = explode(',', $company_photo);
-                        $company_info = [
-                            'company_id'  => $company_id,
-                            'create_date' => time()
-                        ];
+                        $this->forgetSession();
+                        request()->session()->forget('company_price');
+                        return redirect('jump')->with(['message' => '修改成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
+                    }
+                } else {
+                    $photos = explode(',', $company_photo);
+                    $company_info = [
+                        'company_id' => $company_id,
+                        'create_date' => time()
+                    ];
 
-                        foreach ($photos as $photo) {
-                            $image = basename($photo);
-                            $company_info['image'] = 'uploads/' . $image;
-                            $results = Companyphtots::create($company_info);
+                    $failphoto = [];
 
-                            if (empty($results)) {
-                                $failphoto[] = $image;
-                            }
+                    foreach ($photos as $photo) {
+                        $image = basename($photo);
+                        $company_info['image'] = 'uploads/' . $image;
+                        $results = Companyphtots::create($company_info);
+
+                        if (empty($results)) {
+                            $failphoto[] = $image;
                         }
+                    }
 
-                        if (!empty($failphoto) || $companyinfo == 0) {
-                            return redirect('jump')->with(['message' => '信息修改失败，' . explode(',', $failphoto) . '修改失败！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
-                        } else {
-                            $this->forgetSession();
-                            request()->session()->forget('company_price');
-                            return redirect('jump')->with(['message' => '修改成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
-                        }
+                    if (!empty($failphoto) && $companyinfo == 0) {
+                        $this->forgetSession();
+                        request()->session()->forget('company_price');
+                        return redirect('jump')->with(['message' => '信息修改失败，' . implode(',', $failphoto) . '图片修改失败！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
+                    } else {
+                        $this->forgetSession();
+                        request()->session()->forget('company_price');
+                        return redirect('jump')->with(['message' => '修改成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                     }
                 }
             }
@@ -360,10 +377,10 @@ class CompanyController extends BaseController
     }
 
     // 删除已显示图片
-    public function deleteImg(){
+    public function deleteImg() {
         if (request()->isMethod('POST')) {
-            $src = request()->input('src');
-            $company_photo = Companyphtots::where('image', $src)->delete();
+            $id = request()->input('id');
+            $company_photo = Companyphtots::where('photo_id', $id)->delete();
 
             if (0 == $company_photo) {
                 return response()->json('删除失败');
@@ -374,7 +391,7 @@ class CompanyController extends BaseController
     }
 
     // 处理商户使用时间
-    public function handletime($time){
+    public function handletime($time) {
         if (null != $time) {
             $hour = floor($time / 60);
             $minute = floor($time - $hour * 60);
@@ -391,13 +408,13 @@ class CompanyController extends BaseController
     }
 
     // 添加商户页面
-    public function addCompanyIndex(){
+    public function addCompanyIndex() {
         // 获取贵宾厅
-        $merchantname = Merchant::where('merchant_state', '1')->get(['merchant_name','merchant_id']);
+        $merchantname = Merchant::where('merchant_state', '1')->get(['merchant_name', 'merchant_id']);
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '添加商户'],
         ];
 
@@ -408,10 +425,13 @@ class CompanyController extends BaseController
     }
 
     // 保存商户添加信息
-    public function addCompany(){
+    public function addCompany() {
         if (request()->isMethod('POST')) {
+
             $companyinfo = $this->handle_label(request()->input('Company'));
+
             $company_photo = request()->input('company_photo');
+
             $company_confirm_pwd = trim(htmlentities(request()->input('confirm_password')));
 
             $this->saveSession($companyinfo);
@@ -422,13 +442,14 @@ class CompanyController extends BaseController
                 return redirect('jump')->with(['message' => '商户名称，商户简称，手机号，地址，账号，密码不能为空!', 'url' => '/Admin/Company/addCompanyIndex', 'jumpTime' => 3, 'status' => false]);
             } else {
                 // 验证账号唯一
-                /*$company = CompanyInfo::where('company_account', $companyinfo['company_account'])->get();
-                if (!empty($company)) {
+                $company = CompanyInfo::where('company_account', $companyinfo['company_account'])->first();
+                if (isset($company->company_account) && !empty($company->company_account)) {
                     return redirect('jump')->with(['message' => '账号已存在!', 'url' => '/Admin/Company/addCompanyIndex', 'jumpTime' => 3, 'status' => false]);
-                }*/
+                }
 
                 // 验证手机号
                 $pattern = "/^1[34578]\d{9}$/";
+
                 if (!preg_match($pattern, $companyinfo['company_phone'])) {
                     return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => '/Admin/Company/addCompanyIndex', 'jumpTime' => 3, 'status' => false]);
                 }
@@ -452,15 +473,17 @@ class CompanyController extends BaseController
                 $companyinfo['create_date'] = time();
 
                 $companymes = CompanyInfo::create($companyinfo);
+
                 $company_id = $companymes->company_id;
 
                 if ($company_photo != '') {
                     $photos = explode(',', $company_photo);
                     $company = [
-                        'company_id'  => $company_id,
+                        'company_id' => $company_id,
                         'create_date' => time()
                     ];
 
+                    $failphoto = [];
                     foreach ($photos as $photo) {
                         $image = basename($photo);
                         $company['image'] = 'uploads/' . $image;
@@ -471,14 +494,13 @@ class CompanyController extends BaseController
                         }
                     }
 
-                    if (!empty($failphoto) || $companyinfo == 0) {
-                        return redirect('jump')->with(['message' => '信息添加失败，' . explode(',', $failphoto) . '添加失败！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
+                    if (!empty($failphoto) && $companyinfo == 0) {
+                        return redirect('jump')->with(['message' => '信息添加失败，' . explode(',', $failphoto) . '图片添加失败！', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                     } else {
                         $this->forgetSession();
                         request()->session()->forget('company_price');
                         return redirect('jump')->with(['message' => '添加成功!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
                     }
-
                 } else {
                     if (empty($companymes)) {
                         return redirect('jump')->with(['message' => '添加失败!', 'url' => '/Admin/Company/index', 'jumpTime' => 3, 'status' => false]);
@@ -493,7 +515,7 @@ class CompanyController extends BaseController
     }
 
     // 将表单信息保存至session实现数据保留
-    public function saveSession($data){
+    public function saveSession($data) {
         if (!empty($data)) {
             request()->session()->put('company_name', $data['company_name']);
             request()->session()->put('company_abbreviation', $data['company_abbreviation']);
@@ -509,7 +531,7 @@ class CompanyController extends BaseController
     }
 
     // 操作成功后清空部分session数据
-    public function forgetSession(){
+    public function forgetSession() {
         request()->session()->forget('company_name');
         request()->session()->forget('company_abbreviation');
         request()->session()->forget('company_phone');

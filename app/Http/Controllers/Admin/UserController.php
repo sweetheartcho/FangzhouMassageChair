@@ -51,7 +51,7 @@ class UserController extends BaseController
         if (isset($_GET['search_state'])) {
             $search_state = $_GET['search_state'];
         } else {
-            $search_state = '';
+            $search_state = '-1';
         }
 
         $url = '';
@@ -104,11 +104,15 @@ class UserController extends BaseController
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '用户管理']
         ];
 
         $states = [
+            [
+                'title' => '请选择状态',
+                'value' => '-1'
+            ],
             [
                 'title' => '正常',
                 'value' => 1
@@ -153,6 +157,7 @@ class UserController extends BaseController
 
         if (!empty($user_ids)) {
 
+            $fail_account = [];
             foreach ($user_ids as $user_id) {
                 $nickname = UserInfo::find($user_id)->value('nickname');
                 $userinfo = UserInfo::where('id', $user_id)->update(['is_state' => '0']);
@@ -208,7 +213,7 @@ class UserController extends BaseController
             $whereList[] = " token LIKE '%" . $data['search_token'] . "%'";
         }
 
-        if (isset($data['search_state']) && !is_null($data['search_state'])) {
+        if (isset($data['search_state']) && !is_null($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " state LIKE '%" . $data['search_state'] . "%'";
         }
 
@@ -259,7 +264,7 @@ class UserController extends BaseController
             $whereList[] = " token LIKE '%" . $data['search_token'] . "%'";
         }
 
-        if (isset($data['search_state']) && $data['search_state'] != '*') {
+        if (isset($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " state LIKE '%" . $data['search_state'] . "%'";
         }
 

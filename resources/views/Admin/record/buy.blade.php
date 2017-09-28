@@ -22,9 +22,8 @@
             </div>
             <div class="layui-input-inline" style="width:200px;">
                 <select name="search_state">
-                    <option value="*">请选择状态</option>
                     @foreach($states as $state)
-                        @if(!empty($search['state'])&&$search['state']!='*'&&$search['state']==$state['value'])
+                        @if($search_state == $state['value'])
                             <option value="{{ $state['value'] }}" selected>{{ $state['title'] }}</option>
                         @else
                             <option value="{{ $state['value'] }}">{{ $state['title'] }}</option>
@@ -157,7 +156,7 @@
         }
 
         var search_state = $('select[name=\'search_state\']').val();
-        if (search_state != '*') {
+        if (search_state != '-1') {
             url += '?search_state=' + search_state;
         }
 

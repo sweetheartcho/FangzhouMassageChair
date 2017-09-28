@@ -79,7 +79,7 @@ class WaiterController extends BaseController
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '商户管理'],
             ['text' => '编辑商户'],
             ['text' => '查看服务员信息'],
@@ -191,6 +191,7 @@ class WaiterController extends BaseController
             $waiter_id = request()->input('selected');
             $company_id = request()->input('company_id');
 
+            $fail_waiter_name = [];
             if (!empty($waiter_id)) {
                 foreach ($waiter_id as $id) {
                     $waitername = CompanyWaiter::where('waiter_id', $id)->value('waiter_name');
@@ -218,7 +219,7 @@ class WaiterController extends BaseController
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '商户管理'],
             ['text' => '编辑商户'],
             ['text' => '查看服务员信息'],
@@ -243,7 +244,7 @@ class WaiterController extends BaseController
             if ('' == $waiter['waiter_name'] || '' == $waiter['waiter_telephone']) {
                 return redirect('jump')->with(['message' => '服务员姓名，手机号不能为空!', 'url' => '/Admin/Waiter/waiterEditIndex/id/' . $waiter_id, 'jumpTime' => 3, 'status' => false]);
             } else {
-                $waiter_info = CompanyWaiter::find($waiter_id);  //dd($waiter_info);
+                $waiter_info = CompanyWaiter::find($waiter_id);
                 if ($waiter['waiter_name'] == $waiter_info['waiter_name'] && $waiter['waiter_telephone'] == $waiter_info['waiter_telephone']) {
                     $this->forgetSession();
                     return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Waiter/index/id/' . $company_id, 'jumpTime' => 3, 'status' => false]);
@@ -256,6 +257,7 @@ class WaiterController extends BaseController
 
                     $waiterinfo = CompanyWaiter::where('waiter_id', $waiter_id)->update($waiter);
                     if (0 == $waiterinfo) {
+                        $this->forgetSession();
                         return redirect('jump')->with(['message' => '修改失败!', 'url' => 'Admin/Waiter/waiterEditIndex/id/'.$waiter_id, 'jumpTime' => 3, 'status' => false]);
                     } else {
                         $this->forgetSession();
@@ -271,7 +273,7 @@ class WaiterController extends BaseController
 
         $breadcrumbs = [
             ['text' => '首页'],
-            ['text' => '会员管理'],
+            ['text' => '信息管理'],
             ['text' => '商户管理'],
             ['text' => '编辑商户'],
             ['text' => '添加服务员信息']
@@ -307,6 +309,9 @@ class WaiterController extends BaseController
                 $waiterinfo = CompanyWaiter::create($waiter);
 
                 if (empty($waiterinfo)) {
+                    request()->session()->forget('code');
+                    request()->session()->forget('waiter_name');
+                    request()->session()->forget('waiter_telephone');
                     return redirect('jump')->with(['message' => '添加失败!', 'url' => 'Admin/Waiter/index/id/' . $company_id, 'jumpTime' => 3, 'status' => false]);
                 } else {
                     request()->session()->forget('code');

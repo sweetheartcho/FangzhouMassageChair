@@ -15,7 +15,7 @@ use DB;
 class MerchantController extends BaseController
 {
     // 贵宾厅列表页面
-    public function index() {
+    public function index(){
 
         if (isset($_GET['sort'])) {
             $sort = $_GET['sort'];
@@ -54,8 +54,8 @@ class MerchantController extends BaseController
         $pageSize = 10;
 
         $data = [
-            'sort'         => $sort,
-            'search_name'  => $search_name,
+            'sort' => $sort,
+            'search_name' => $search_name,
             'search_phone' => $search_phone
         ];
 
@@ -63,15 +63,15 @@ class MerchantController extends BaseController
         $merchantnum = $this->getMerchantNum($data);
 
         $sort_route[] = [
-            'merchant_name'        => url('Admin/Merchant/index') . '?sort=merchant_name' . $url,
-            'merchant_phone'       => url('Admin/Merchant/index') . '?sort=merchant_phone' . $url,
-            'merchant_account'     => url('Admin/Merchant/index') . '?sort=merchant_account' . $url,
+            'merchant_name' => url('Admin/Merchant/index') . '?sort=merchant_name' . $url,
+            'merchant_phone' => url('Admin/Merchant/index') . '?sort=merchant_phone' . $url,
+            'merchant_account' => url('Admin/Merchant/index') . '?sort=merchant_account' . $url,
             'merchant_create_date' => url('Admin/Merchant/index') . '?sort=create_date' . $url
         ];
 
-        $item = array_splice($merchant,($page - 1) * $pageSize, $pageSize);
+        $item = array_splice($merchant, ($page - 1) * $pageSize, $pageSize);
         $paginator = new LengthAwarePaginator($item, $merchantnum, $pageSize, $page, [
-            'path'     => Paginator::resolveCurrentPath() . '?sort=' . $sort . '&search_name=' . $search_name . '&search_phone=' . $search_phone,
+            'path' => Paginator::resolveCurrentPath() . '?sort=' . $sort . '&search_name=' . $search_name . '&search_phone=' . $search_phone,
             'pageName' => 'page',
         ]);
 
@@ -84,23 +84,24 @@ class MerchantController extends BaseController
         ];
 
         return view('Admin.merchant.MerchantList', [
-            'breadcrumbs'  => $breadcrumbs,
+            'breadcrumbs' => $breadcrumbs,
             'merchantinfo' => $merchantinfo,
-            'merchantnum'  => $merchantnum,
-            'paginator'    => $paginator,
-            'sort_route'   => $sort_route,
-            'search_name'  => $search_name,
+            'merchantnum' => $merchantnum,
+            'paginator' => $paginator,
+            'sort_route' => $sort_route,
+            'search_name' => $search_name,
             'search_phone' => $search_phone,
-            'sort'         => $sort
+            'sort' => $sort
         ]);
     }
 
     // 批量删除
-    public function batchDelete() {
+    public function batchDelete(){
         $merchant_id = request()->input('selected');
 
         if (!empty($merchant_id)) {
 
+            $fail_merchant = [];
             foreach ($merchant_id as $id) {
                 $merchantname = Merchant::find($id)->value('merchant_name');
                 $merchantinfo = Merchant::where('merchant_id', $id)->update(['merchant_state' => '0']);
@@ -142,7 +143,7 @@ class MerchantController extends BaseController
             $whereList[] = " merchant_name LIKE '%" . $data['search_name'] . "%'";
         }
 
-        if(!empty($data['search_phone'])){
+        if (!empty($data['search_phone'])) {
             $whereList[] = " merchant_phone LIKE '%" . $data['search_phone'] . "%'";
         }
 
@@ -151,6 +152,10 @@ class MerchantController extends BaseController
             $sql .= " AND merchant_state=1";
         } else {
             $sql .= " WHERE merchant_state=1";
+        }
+
+        if (request()->session()->has('merchant_id')) {
+            $sql .= " AND merchant_id='" . request()->session()->get('merchant_id') . "'";
         }
 
         $sql .= " GROUP BY merchant_id";
@@ -181,7 +186,7 @@ class MerchantController extends BaseController
             $whereList[] = " merchant_name LIKE '%" . $data['search_name'] . "%'";
         }
 
-        if(!empty($data['search_phone'])){
+        if (!empty($data['search_phone'])) {
             $whereList[] = " merchant_phone LIKE '%" . $data['search_phone'] . "%'";
         }
 
@@ -190,6 +195,10 @@ class MerchantController extends BaseController
             $sql .= " AND merchant_state=1";
         } else {
             $sql .= " WHERE merchant_state=1";
+        }
+
+        if (request()->session()->has('merchant_id')) {
+            $sql .= " AND merchant_id='" . request()->session()->get('merchant_id') . "'";
         }
 
         $sort_data = [
@@ -213,7 +222,7 @@ class MerchantController extends BaseController
     }
 
     // 编辑贵宾厅信息页面
-    public function merchantEditIndex($id) {
+    public function merchantEditIndex($id){
 
         $merchantinfo = Merchant::find($id);
 
@@ -226,12 +235,12 @@ class MerchantController extends BaseController
 
         return view('Admin.merchant.MerchantEdit', [
             'merchantinfo' => $merchantinfo,
-            'breadcrumbs'  => $breadcrumbs
+            'breadcrumbs' => $breadcrumbs
         ]);
     }
 
     // 保存修改贵宾厅信息
-    public function MerchantEdit() {
+    public function MerchantEdit(){
         if (request()->isMethod('POST')) {
             $merchant = $this->handle_label(request()->input('Merchant'));
             $merchant_id = request()->input('merchant_id');
@@ -240,15 +249,15 @@ class MerchantController extends BaseController
             $this->saveSession($merchant);
 
             if ('' == $merchant['merchant_name'] || '' == $merchant['merchant_phone'] || '' == $merchant['merchant_account']) {
-                return redirect('jump')->with(['message' => '贵宾厅名称，联系方式，账号不能为空！', 'url' => 'Admin/Merchant/merchantEditIndex/id/'.$merchant_id, 'jumpTime' => 3, 'status' => false]);
-            }else{
+                return redirect('jump')->with(['message' => '贵宾厅名称，联系方式，账号不能为空！', 'url' => 'Admin/Merchant/merchantEditIndex/id/' . $merchant_id, 'jumpTime' => 3, 'status' => false]);
+            } else {
                 // 验证手机号
                 $pattern = "/^1[34578]\d{9}$/";
                 if (!preg_match($pattern, $merchant['merchant_phone'])) {
-                    return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Merchant/merchantEditIndex/id/'.$merchant_id, 'jumpTime' => 3, 'status' => false]);
+                    return redirect('jump')->with(['message' => '请填写正确格式的手机号!', 'url' => 'Admin/Merchant/merchantEditIndex/id/' . $merchant_id, 'jumpTime' => 3, 'status' => false]);
                 }
 
-                $merchants = Merchant::where('merchant_id', $merchant_id)->get(['merchant_name', 'merchant_phone', 'merchant_password','merchant_account']);
+                $merchants = Merchant::where('merchant_id', $merchant_id)->get(['merchant_name', 'merchant_phone', 'merchant_password', 'merchant_account']);
                 foreach ($merchants as $value) {
                     $merchantArr = $value;
                 }
@@ -257,23 +266,17 @@ class MerchantController extends BaseController
                     md5(md5($merchant['merchant_password'])) == $merchantArr['merchant_password'] && $merchant['merchant_account'] == $merchantArr['merchant_account']) {
                     $this->forgetSession();
                     return redirect('jump')->with(['message' => '请注意：未修改任何信息', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
-                }else{
-
-                    // 验证账号唯一
-                    /*$check_merchant_name = Merchant::where('merchant_name', $merchant['merchant_name'])->get();
-                    if (!empty($check_merchant_name)) {
-                        return redirect('jump')->with(['message' => '账号已存在!', 'url' => '/Admin/Merchant/addMerchantIndex', 'jumpTime' => 3, 'status' => false]);
-                    }*/
-
+                } else {
                     $merchant['merchant_password'] = md5(md5($merchant['merchant_password']));
 
                     if ('' != $merchant['merchant_password']) {
                         $merchantinfo = Merchant::where('merchant_id', $merchant_id)->update($merchant);
-                    }else{
+                    } else {
                         $merchantinfo = Merchant::where('merchant_id', $merchant_id)->update(['merchant_name' => $merchant['name'], 'merchant_phone' => $merchant['phone'], 'merchant_account' => $merchant['account']]);
                     }
 
                     if ($merchantinfo == 0) {
+                        $this->forgetSession();
                         return redirect('jump')->with(['message' => '修改失败!', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
                     } else {
                         $this->forgetSession();
@@ -317,24 +320,23 @@ class MerchantController extends BaseController
                 }
 
                 // 验证账号唯一
-                /*$check_merchant_name = Merchant::where('merchant_name', $merchantinfo['merchant_name'])->get();
-               if(!empty($check_merchant_name)){
-                   return redirect('jump')->with(['message' => '账号已存在!', 'url' => '/Admin/Merchant/addMerchantIndex', 'jumpTime' => 3, 'status' => false]);
-               } else {*/
-
-                $merchantinfo['merchant_password'] = md5(md5($merchantinfo['merchant_password']));
-                $merchantinfo['create_user_id'] = request()->session()->get('admin_id');
-                $merchant = Merchant::create($merchantinfo);
-
-                if (!empty($merchant)) {
-                    $this->forgetSession();
-                    return redirect('jump')->with(['message' => '添加成功!', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
+                $check_merchant_account = Merchant::where('merchant_account', $merchantinfo['merchant_account'])->first();
+                if (!empty($check_merchant_account)) {
+                    return redirect('jump')->with(['message' => '账号已存在!', 'url' => '/Admin/Merchant/addMerchantIndex', 'jumpTime' => 3, 'status' => false]);
                 } else {
-                    return redirect('jump')->with(['message' => '添加失败!', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
-                }
-                //}
-            }
+                    $merchantinfo['merchant_password'] = md5(md5($merchantinfo['merchant_password']));
+                    $merchantinfo['create_user_id'] = request()->session()->get('admin_id');
+                    $merchant = Merchant::create($merchantinfo);
 
+                    if (!empty($merchant)) {
+                        $this->forgetSession();
+                        return redirect('jump')->with(['message' => '添加成功!', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
+                    } else {
+                        $this->forgetSession();
+                        return redirect('jump')->with(['message' => '添加失败!', 'url' => '/Admin/Merchant/index', 'jumpTime' => 3, 'status' => false]);
+                    }
+                }
+            }
         }
     }
 

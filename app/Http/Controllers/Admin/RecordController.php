@@ -49,7 +49,7 @@ class RecordController extends BaseController
         if (isset($_GET['search_state'])) {
             $search_state = $_GET['search_state'];
         } else {
-            $search_state = '';
+            $search_state = '-1';
         }
 
         $url = '';
@@ -104,6 +104,10 @@ class RecordController extends BaseController
         $buyrecord = $paginator->toArray()['data'];
 
         $states = [
+            [
+                'value' => '-1',
+                'title' => '请选择状态'
+            ],
             [
                 'value' => 0,
                 'title' => '正常'
@@ -162,7 +166,7 @@ class RecordController extends BaseController
             $whereList[] = " bci.company_name LIKE '%" . $data['search_company_name'] . "%'";
         }
 
-        if (isset($data['search_state']) && !is_null($data['search_state'])) {
+        if (isset($data['search_state']) && !is_null($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " asset_state LIKE '%" . $data['search_state'] . "%'";
         }
 
@@ -223,7 +227,7 @@ class RecordController extends BaseController
             $whereList[] = " company_name LIKE '%" . $data['search_company_name'] . "%'";
         }
 
-        if (isset($data['search_state']) && !is_null($data['search_state'])) {
+        if (isset($data['search_state']) && !is_null($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " asset_state LIKE '%" . $data['search_state'] . "%'";
         }
 
@@ -292,7 +296,7 @@ class RecordController extends BaseController
         if (isset($_GET['search_state'])) {
             $search_state = $_GET['search_state'];
         } else {
-            $search_state = '';
+            $search_state = '-1';
         }
 
         $url = '';
@@ -348,6 +352,10 @@ class RecordController extends BaseController
 
         $states = [
             [
+                'value' => '-1',
+                'title' => '请选择状态'
+            ],
+            [
                 'value' => 0,
                 'title' => '正常'
             ],
@@ -401,7 +409,7 @@ class RecordController extends BaseController
             $whereList[] = " company_name LIKE '%" . $data['search_company_name'] . "%'";
         }
 
-        if (isset($data['search_state'])&& !is_null($data['search_state'])) {
+        if (isset($data['search_state'])&& !is_null($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " buco.is_state LIKE '%" . $data['search_state'] . "%'";
         }
 
@@ -461,7 +469,7 @@ class RecordController extends BaseController
             $whereList[] = " company_name LIKE '%" . $data['search_company_name'] . "%'";
         }
 
-        if (isset($data['search_state'])&& !is_null($data['search_state'])) {
+        if (isset($data['search_state'])&& !is_null($data['search_state']) && $data['search_state'] != '-1') {
             $whereList[] = " is_state LIKE '%" . $data['search_state'] . "%'";
         }
 

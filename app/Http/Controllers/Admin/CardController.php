@@ -87,6 +87,8 @@ class CardController extends BaseController
             $cards_id = request()->input('selected');
 
             if (!empty($cards_id)) {
+                $fail_cardname = [];
+
                 foreach ($cards_id as $card_id) {
                     $cardname = CardInfo::where('card_id', $card_id)->value('card_name');
                     $cardinfo = CardInfo::where('card_id', $card_id)->update(['card_state' => '1']);
@@ -231,7 +233,6 @@ class CardController extends BaseController
                     $this->forgetSession();
                     return redirect('jump')->with(['message' => '请注意：未修改任何信息!', 'url' => '/Admin/Card/index', 'jumpTime' => 3, 'status' => false]);
                 }else{
-
                     if (isset($card['card_logo']) && $card['card_logo'] != '') {
                         $card['card_logo'] = 'uploads/' . basename($card['card_logo']);
                         $cardinfo = CardInfo::where('card_id', $card_id)->update($card);
@@ -241,6 +242,7 @@ class CardController extends BaseController
                     }
 
                     if ($cardinfo == 0) {
+                        $this->forgetSession();
                         return redirect('jump')->with(['message' => '修改失败!', 'url' => '/Admin/Card/index', 'jumpTime' => 3, 'status' => false]);
                     } else {
                         $this->forgetSession();

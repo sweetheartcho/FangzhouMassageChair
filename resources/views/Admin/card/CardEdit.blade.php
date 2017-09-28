@@ -1,7 +1,9 @@
 @include('Admin.common.meta')
-<body>
+<body >
 <div class="x-nav">
-    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:left;padding-top:5px; margin-right:10px;" href="{{ url('Admin/Card/index') }}" title="返回上一页">
+    <a class="layui-btn layui-btn-small"
+       style="line-height:1.6em;margin-top:3px;float:left;padding-top:5px; margin-right:10px;"
+       href="{{ url('Admin/Card/index') }}" title="返回上一页">
         <i class="layui-icon">&lt;</i>
     </a>
     <span class="layui-breadcrumb">
@@ -9,7 +11,8 @@
             <a><cite>{{ $breadcrumb['text'] }}</cite></a>
         @endforeach
     </span>
-    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       href="javascript:location.replace(location.href);" title="刷新">
         <i class="layui-icon" style="line-height:30px">ဂ</i>
     </a>
 </div>
@@ -26,19 +29,24 @@
         <div class="layui-form-item">
             <label class="layui-form-label">产品名称<span class="x-red">*</span></label>
             <div class="layui-input-inline-modify">
-                <input type="text" name="Card[card_name]" autocomplete="off" value="{{ Session::has('card_name')?Session::pull('card_name'):$cardinfo->card_name }}" class="layui-input">
+                <input type="text" name="Card[card_name]" autocomplete="off"
+                       value="{{ Session::has('card_name')?Session::pull('card_name'):$cardinfo->card_name }}"
+                       class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">产品价格</label>
             <div class="layui-input-inline-modify">
-                <input type="text" name="Card[card_price]" autocomplete="off" value="{{ Session::has('card_price')?Session::pull('card_price'):$cardinfo->card_price }}" class="layui-input">
+                <input type="text" name="Card[card_price]" autocomplete="off"
+                       value="{{ Session::has('card_price')?Session::pull('card_price'):$cardinfo->card_price }}"
+                       class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">产品描述</label>
             <div class="layui-input-inline-modify">
-                <textarea name="Card[card_description]" autocomplete="off" class="layui-textarea">{{ Session::has('card_description')?Session::pull('card_description'):$cardinfo->card_description }}</textarea>
+                <textarea name="Card[card_description]" autocomplete="off"
+                          class="layui-textarea">{{ Session::has('card_description')?Session::pull('card_description'):$cardinfo->card_description }}</textarea>
             </div>
         </div>
         <div class="layui-form-item">
@@ -71,7 +79,7 @@
 <script type="text/javascript" src="{{ asset('js/x-layui.js') }}" charset="utf-8"></script>
 <script type="text/javascript" src="{{ asset('lib/layui/layui.js') }}" charset="utf-8"></script>
 <script>
-    layui.use(['element','form','layer'], function(){
+    layui.use(['element', 'form', 'layer'], function () {
         $ = layui.jquery;//jquery
         lement = layui.element();//面包导航
         layer = layui.layer;//弹出层
@@ -98,13 +106,15 @@
 </script>
 <script>
 
-    $('#image-show-area').click(function () {
+    window.onbeforeunload=function(){
+        alert(1);
+        alert($('#image-show-area').hasClass('img-body'));
         if ($('#image-show-area').hasClass('img-body')) {
             $('#addImage').hide();
         } else {
             $('#addImage').show();
         }
-    });
+    };
 
     $('#addImage').click(function () {
         layer.open({

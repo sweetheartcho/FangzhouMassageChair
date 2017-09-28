@@ -20,7 +20,7 @@
                     @foreach($configimg as $img)
                         <div class="col-sm-3 img-thumbnail image-show-area">
                             <img src="{{ asset($img->card_photo) }}" alt="{{ $img->card_photo }}"/>
-                            <a class="glyphicon glyphicon-remove" onclick="deleteImg('{{ $img->card_photo }}');">删除</a>
+                            <a class="glyphicon glyphicon-remove" onclick="deleteImg('{{ $img->config_Id }}');">删除</a>
                         </div>
                     @endforeach
                 </div>
@@ -30,8 +30,6 @@
             <label class="layui-form-label">修改图片</label>
             <div class="layui-input-inline" style="width:500px;">
                 <div class="col-sm-12">
-                    {{--<div class="col-sm-3 image-body" id="image-show"><img src="{{ asset('images/plus74.png') }}" style="height:80px; width:80px;"/></div>--}}
-                    {{--<div class="col-sm-3" id="image-show-logo"><span class="glyphicon glyphicon-plus-sign" id="addImage"></span></div>--}}
                     <span class="glyphicon glyphicon-plus-sign" id="addImage"></span>
                 </div>
                 <input type="hidden" name="card_photo" value=""/>
@@ -74,11 +72,11 @@
     });
 </script>
 <script>
-    function deleteImg(src) {
+    function deleteImg(configId) {
         $.ajax({
             type: 'POST',
             url: "{{ url('Admin/Config/deleteImg') }}",
-            data: {src: src},
+            data: {id: configId},
             dataType: 'JSON',
             headers: {'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')},
             success: function (msg) {
